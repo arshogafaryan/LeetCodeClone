@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sum of Two Numbers</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Link to Bootstrap CSS file -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- <h1 class="text-center mb-4">Sum of Two Numbers</h1> -->
+        <form>
+            <h1 class="text-center mb-4">Sum of Two Numbers</h1>
+            <div class="form-group row">
+                <p><em><strong><span style="color:rgb(255, 120, 0);">firstNum</span></strong></em> and <em><strong><span style="color:rgb(255, 120, 0);">secondNum</span></strong></em> are two integers. Given these integers, return their sum.</p>
+            </div>
+        </form>
+        
+        <div id="result" class="mt-3"></div>
+        <hr>
+        <form>
+            <div class="form-group row">
+                <label for="language" class="col-sm-2 col-form-label">Language:</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="language" onchange="setDefaultCode()">
+                        <option value="c++">C++</option>
+                        <option value="js">JavaScript</option>
+                        <option value="java">Java</option>
+                        <option value="python">Python</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="code" class="col-sm-2 col-form-label">Code:</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="code" rows="10"></textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-10 offset-sm-2">
+                    <button type="button" class="btn btn-primary" onclick="runCode()">Run Code</button>
+                    <button type="button" class="btn btn-success" onclick="submitCode()">Submit Code</button>
+                </div>
+            </div>
+        </form>
+        
+        <div class="form-group row">
+            <label for="output" class="col-sm-2 col-form-label">Output:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" id="output" rows="5" readonly></textarea>
+            </div>
+        </div>
+    </div>
+    <!-- Link to Bootstrap JS file -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- JavaScript code -->
+    <script>    
+
+function submitCode() {
+  let code = document.getElementById("code").value;
+  let languageType = document.getElementById("language").value;
+  fetch('http://localhost:8080/save-code', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          code: code,
+          languageType: languageType
+      })
+  })
+  .then(response => response.json())
+  .then(result => {
+      if (result.hasOwnProperty("errorMessage")) {
+          document.getElementById("output").value = "❌ Error: " + result.errorMessage;
+      } else if (result.hasOwnProperty("failedCase")) {
+          let output = result.output;
+          let expected = result.expected;
+          let failedCase = result.failedCase;
+          let outputMessage = `❌ Code failed for case ${failedCase}\n\nOutput:\n${output}\n\nExpected:\n${expected}`;
+          document.getElementById("output").value = outputMessage;
+          // Display the output and expected values on the screen
+          document.getElementById("outputContainer").innerHTML = `Output: ${output}<br>Expected: ${expected}`;
+      } else if (result.hasOwnProperty("message")) {
+          document.getElementById("output").value = "✅ " + result.message;
+          // Remove any previous emojis in the outputContainer
+          document.getElementById("outputContainer").innerHTML = "";
+      } else {
+          document.getElementById("output").value = "❌ Unknown error occurred.";
+      }
+  })
+  .catch(error => {
+      console.log(error);
+  });
+}
+
+function runCode() {
+  let code = document.getElementById("code").value;
+  let languageType = document.getElementById("language").value;
+  fetch('http://localhost:8080/run-code', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          code: code,
+          languageType: languageType
+      })
+  })
+  .then(response => response.json())
+  .then(result => {
+      if (result.hasOwnProperty("errorMessage")) {
+          document.getElementById("output").value = "❌ Error: " + result.errorMessage;
+      } else if (result.hasOwnProperty("failedCase")) {
+          let output = result.output;
+          let expected = result.expected;
+          let failedCase = result.failedCase;
+          let outputMessage = `❌ Code failed for case ${failedCase}\n\nOutput:\n${output}\n\nExpected:\n${expected}`;
+          document.getElementById("output").value = outputMessage;
+          // Display the output and expected values on the screen
+          document.getElementById("outputContainer").innerHTML = `Output: ${output}<br>Expected: ${expected}`;
+      } else if (result.hasOwnProperty("message")) {
+          document.getElementById("output").value = "✅ " + result.message;
+          // Remove any previous emojis in the outputContainer
+          document.getElementById("outputContainer").innerHTML = "";
+      } else {
+          document.getElementById("output").value = "❌ Unknown error occurred.";
+      }
+  })
+  .catch(error => {
+      console.log(error);
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function setDefaultCode() {
+        let language = document.getElementById("language").value;
+        let code = "";
+        switch (language) {
+            case "c++":
+            code = "class Solution {\npublic:\n  int sumOfTwoNumbers(int firstNum, int secondNum) {\n    \n  }\n};";
+            break;
+            case "js":
+            code = "var sumOfTwoNumbers = function(firstNum, secondNum) {\n    \n};";
+            break;
+            case "java":
+            code = "class Solution {\n    public int sumOfTwoNumbers(int firstNum, int secondNum) {\n        \n    }\n}";
+            break;
+            case "python":
+            code = "class Solution:\n    def sumOfTwoNumbers(self, firstNum:int, secondNum:int) -> int:\n        \n";
+            break;
+            default:
+            alert("Invalid language selected");
+        }
+        document.getElementById("code").value = code;
+    }
+    setDefaultCode();
+
+    </script>
+</body>
+</html>
